@@ -1,0 +1,23 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@font-face {
+  font-family: "Pretendard Variable";
+  src: url("/app/fonts/PretendardVariable.woff2") format("woff2");
+  font-weight: 100 900;
+  font-style: normal;
+  font-display: swap;
+}
+
+@layer base {
+  html {
+    font-family: "Pretendard Variable", -apple-system, BlinkMacSystemFont,
+      system-ui, sans-serif;
+  }
+
+  body {
+    font-family: "Pretendard Variable", -apple-system, BlinkMacSystemFont,
+      system-ui, sans-serif;
+  }
+}
