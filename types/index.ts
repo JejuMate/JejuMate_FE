@@ -9,6 +9,8 @@ export interface ScheduleItem {
   image: string;
   duration: string;
   cost: string;
+  latitude?: number;
+  longitude?: number;
 }
 
 export interface DaySchedule {
