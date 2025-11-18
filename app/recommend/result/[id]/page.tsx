@@ -5,7 +5,6 @@ import Link from "next/link";
 import Header from "@/components/Header";
 import Loading from "@/components/Loading";
 import ChatBot from "@/components/ChatBot";
-import { useSchedule } from "@/hooks/useSchedule";
 import { calculateTotalCost } from "@/utils/helpers";
 import type { DaySchedule } from "@/types";
 
@@ -18,7 +17,6 @@ export default function RecommendResultById({
   const [isChatOpen, setIsChatOpen] = useState(false);
   const [schedules, setSchedules] = useState<DaySchedule[]>([]);
   const [isLoading, setIsLoading] = useState(true);
-  const { handleSaveSchedule, isSaving } = useSchedule();
 
   // Mock 추천 결과 데이터
   const mockSchedules: DaySchedule[] = [
@@ -118,15 +116,6 @@ export default function RecommendResultById({
     }, 1500);
   }, [resolvedParams.id]);
 
-  const onSaveSchedule = async () => {
-    try {
-      await handleSaveSchedule(schedules);
-      alert("일정이 저장되었습니다!");
-    } catch (error) {
-      console.error(error);
-    }
-  };
-
   const updateSchedule = (newSchedules: DaySchedule[]) => {
     setSchedules(newSchedules);
   };
@@ -166,13 +155,6 @@ export default function RecommendResultById({
                 </div>
               </div>
             </div>
-            <button
-              onClick={onSaveSchedule}
-              disabled={isSaving}
-              className="bg-white text-blue-600 px-6 py-3 rounded-lg font-semibold hover:bg-gray-100 transition-colors cursor-pointer whitespace-nowrap disabled:opacity-50"
-            >
-              {isSaving ? "저장 중..." : "일정 저장"}
-            </button>
           </div>
         </div>
 
