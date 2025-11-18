@@ -37,7 +37,7 @@ export default function Home() {
       favoriteCount: 890,
       totalScore: 2140,
       image:
-        "https://readdy.ai/api/search-image?query=Beautiful%20sunrise%20at%20Seongsan%20Ilchulbong%20peak%20in%20Jeju%20Island%20Korea%20with%20dramatic%20volcanic%20crater%20formation%20and%20ocean%20view%2C%20golden%20morning%20light%2C%20natural%20landscape%20photography&width=300&height=200&seq=1&orientation=landscape",
+        "https://i.namu.wiki/i/lCnKdPrZluTYpA_2D3sTjakQxDA1xdFgtGxk5ayQHLRcnd6apreMZuIz6Bt3li7Q7fAUlFoyTqhXnrs8DPa-AqOMOlHbIYUZ6HFHDysGLTyv_AGwtmQVBQ-3M8VDtbI3ghfN_rOVd6n7Xa_FjGJN3Q.webp",
       description: "제주도의 대표적인 일출 명소로 유네스코 세계자연유산",
       averageRating: 4.8,
     },
@@ -50,7 +50,7 @@ export default function Home() {
       favoriteCount: 720,
       totalScore: 1700,
       image:
-        "https://readdy.ai/api/search-image?query=Majestic%20Hallasan%20mountain%20in%20Jeju%20Island%20with%20hiking%20trails%2C%20lush%20green%20forest%2C%20mountain%20peak%2C%20natural%20hiking%20destination%2C%20clear%20mountain%20air%2C%20volcanic%20landscape&width=300&height=200&seq=2&orientation=landscape",
+        "https://i.namu.wiki/i/VnQkVuWyl4W7r3pj_YQvHTcyGzV-5dpviOISjvKO3JqR57bukI-NJkrOY1vyuLIi2MWork44c545_a5UGNNQ60GZgGUWpxC2bJ6K8CX83p9vRH7DmS8yFNLDUP8NXBHDxezv0E0P79aEKe4zGnmk0Q.webp",
       description: "제주도의 최고봉으로 다양한 등산 코스 제공",
       averageRating: 4.7,
     },
@@ -62,8 +62,7 @@ export default function Home() {
       recommendCount: 850,
       favoriteCount: 650,
       totalScore: 1500,
-      image:
-        "https://readdy.ai/api/search-image?query=Delicious%20Jeju%20black%20pork%20barbecue%20grilled%20meat%20Korean%20cuisine%2C%20traditional%20restaurant%20setting%2C%20appetizing%20food%20photography%2C%20warm%20lighting%2C%20local%20specialty&width=300&height=200&seq=3&orientation=landscape",
+      image: "https://cdn.newskr.kr/news/photo/201810/14970_12854_3441.png",
       description: "제주도 대표 특산품인 흑돼지 구이 전문점",
       averageRating: 4.6,
     },
@@ -76,7 +75,7 @@ export default function Home() {
       favoriteCount: 560,
       totalScore: 1340,
       image:
-        "https://readdy.ai/api/search-image?query=Scenic%20Udo%20island%20near%20Jeju%20with%20pristine%20turquoise%20beaches%2C%20coastal%20cliffs%2C%20peaceful%20island%20atmosphere%2C%20clear%20blue%20water%2C%20natural%20beauty&width=300&height=200&seq=4&orientation=landscape",
+        "https://encrypted-tbn0.gstatic.com/licensed-image?q=tbn:ANd9GcQKskTEWYAqiA4-K6AePQMLEoax0lK_zE2MK-So6FMy9FzfR2xA0DyyN0D2-CphzHiJL2prD4po0obgskLAtwxe9Go&s=19",
       description: "에메랄드빛 바다와 아름다운 해안선을 자랑하는 섬",
       averageRating: 4.5,
     },
