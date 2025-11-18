@@ -56,6 +56,20 @@ export default function Recommend() {
     });
   };
 
+  const handleCompanionToggle = (companionId: string) => {
+    setFormData({
+      ...formData,
+      companion: formData.companion === companionId ? "" : companionId,
+    });
+  };
+
+  const handleAgeGroupToggle = (ageGroupId: string) => {
+    setFormData({
+      ...formData,
+      ageGroup: formData.ageGroup === ageGroupId ? "" : ageGroupId,
+    });
+  };
+
   return (
     <div className="min-h-screen bg-gray-50">
       <Header />
@@ -81,15 +95,14 @@ export default function Recommend() {
               </h3>
               <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
                 {COMPANIONS.map((comp) => (
-                  <label key={comp.id} className="cursor-pointer">
-                    <input
-                      type="radio"
-                      name="companion"
-                      value={comp.id}
-                      checked={formData.companion === comp.id}
-                      onChange={handleChange}
-                      className="sr-only"
-                    />
+                  <label
+                    key={comp.id}
+                    className="cursor-pointer"
+                    onClick={(e) => {
+                      e.preventDefault();
+                      handleCompanionToggle(comp.id);
+                    }}
+                  >
                     <div
                       className={`p-4 rounded-xl border-2 text-center transition-all hover:shadow-md ${
                         formData.companion === comp.id
@@ -113,15 +126,14 @@ export default function Recommend() {
               </h3>
               <div className="grid grid-cols-2 md:grid-cols-5 gap-4">
                 {AGE_GROUPS.map((age) => (
-                  <label key={age.id} className="cursor-pointer">
-                    <input
-                      type="radio"
-                      name="ageGroup"
-                      value={age.id}
-                      checked={formData.ageGroup === age.id}
-                      onChange={handleChange}
-                      className="sr-only"
-                    />
+                  <label
+                    key={age.id}
+                    className="cursor-pointer"
+                    onClick={(e) => {
+                      e.preventDefault();
+                      handleAgeGroupToggle(age.id);
+                    }}
+                  >
                     <div
                       className={`p-4 rounded-xl border-2 text-center transition-all hover:shadow-md ${
                         formData.ageGroup === age.id
@@ -155,12 +167,18 @@ export default function Recommend() {
                     <div
                       className={`p-4 rounded-xl border-2 transition-all hover:shadow-md ${
                         formData.categories.includes(category.id)
-                          ? category.color + " border-opacity-100"
+                          ? "border-blue-500 bg-blue-50 text-blue-700"
                           : "border-gray-200 hover:border-gray-300"
                       }`}
                     >
                       <div className="flex items-center">
-                        <i className={`${category.icon} text-2xl mr-4`}></i>
+                        <i
+                          className={`${category.icon} text-2xl mr-4 ${
+                            formData.categories.includes(category.id)
+                              ? "text-blue-700"
+                              : ""
+                          }`}
+                        ></i>
                         <p className="font-medium text-sm">{category.label}</p>
                       </div>
                     </div>

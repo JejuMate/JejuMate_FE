@@ -45,20 +45,13 @@ export default function Header({ showAuth = true }: HeaderProps) {
                   </button>
                 </>
               ) : (
-                <>
-                  <Link
-                    href="/auth/login"
-                    className="text-gray-600 hover:text-gray-900 px-3 py-2 rounded-md text-sm font-medium cursor-pointer"
-                  >
-                    로그인
-                  </Link>
-                  <Link
-                    href="/auth/signup"
-                    className="bg-blue-600 text-white px-4 py-2 rounded-md text-sm font-medium hover:bg-blue-700 cursor-pointer whitespace-nowrap"
-                  >
-                    회원가입
-                  </Link>
-                </>
+                <Link
+                  href="/auth/login"
+                  className="bg-yellow-400 text-black px-4 py-2 rounded-md text-sm font-medium hover:bg-yellow-500 cursor-pointer whitespace-nowrap border border-yellow-500/30 shadow-sm hover:shadow-md transition-all"
+                >
+                  <i className="ri-kakao-talk-fill text-xl mr-[4px]" />
+                  로그인
+                </Link>
               )}
             </div>
           )}
