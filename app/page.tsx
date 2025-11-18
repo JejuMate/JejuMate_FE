@@ -106,7 +106,7 @@ export default function Home() {
               당신만의 완벽한 제주 여행 일정을 만들어보세요
             </p>
             <Link
-              href="/auth/login"
+              href="/recommend"
               className="bg-blue-600 text-white px-8 py-4 rounded-lg text-lg font-semibold hover:bg-blue-700 transition-colors cursor-pointer whitespace-nowrap inline-block"
             >
               지금 시작하기
@@ -237,7 +237,7 @@ export default function Home() {
               AI가 당신의 취향과 예산에 맞는 완벽한 여행 일정을 추천해드립니다
             </p>
             <Link
-              href="/auth/login"
+              href="/recommend"
               className="bg-white text-blue-600 px-8 py-4 rounded-lg text-lg font-semibold hover:bg-gray-100 transition-colors cursor-pointer whitespace-nowrap inline-block"
             >
               무료로 시작하기
