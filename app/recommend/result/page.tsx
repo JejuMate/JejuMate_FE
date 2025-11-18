@@ -6,8 +6,6 @@ import Header from "@/components/Header";
 import Loading from "@/components/Loading";
 import ChatBot from "@/components/ChatBot";
 import Map from "@/features/Map";
-import { useSchedule } from "@/hooks/useSchedule";
-import { calculateTotalCost } from "@/utils/helpers";
 import type { DaySchedule } from "@/types";
 import Script from "next/script";
 
@@ -21,7 +19,6 @@ export default function RecommendResultById({
   const [schedules, setSchedules] = useState<DaySchedule[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [isMapLoaded, setIsMapLoaded] = useState(false);
-  const { handleSaveSchedule, isSaving } = useSchedule();
 
   const naverMapKey = process.env.NEXT_PUBLIC_NAVER_MAP_KEY;
 
@@ -73,19 +70,20 @@ export default function RecommendResultById({
           latitude: 33.50385555839768,
           longitude: 126.95554703086854,
         },
-           {
+        {
           id: "1-4",
           time: "19:00",
           name: "세화 해수욕장",
           category: "관광지",
           description: "코발트 빛 밝은 바다를 볼 수 있는 해수욕장",
           location: "제주시 구좌읍",
-          image: "https://readdy.ai/api/search-image?query=Scenic%20Udo%20island%20near%20Jeju%20with%20pristine%20turquoise%20beaches%2C%20coastal%20cliffs%2C%20peaceful%20island%20atmosphere%2C%20clear%20blue%20water%2C%20natural%20beauty&width=400&height=250&seq=3&orientation=landscape",
+          image:
+            "https://readdy.ai/api/search-image?query=Scenic%20Udo%20island%20near%20Jeju%20with%20pristine%20turquoise%20beaches%2C%20coastal%20cliffs%2C%20peaceful%20island%20atmosphere%2C%20clear%20blue%20water%2C%20natural%20beauty&width=400&height=250&seq=3&orientation=landscape",
           duration: "5시간",
           cost: "30,0000원",
           latitude: 33.524744,
           longitude: 126.861947,
-        }
+        },
       ],
     },
     {
@@ -147,15 +145,6 @@ export default function RecommendResultById({
     }, 1500);
   }, [resolvedParams.id]);
 
-  const onSaveSchedule = async () => {
-    try {
-      await handleSaveSchedule(schedules);
-      alert("일정이 저장되었습니다!");
-    } catch (error) {
-      console.error(error);
-    }
-  };
-
   const updateSchedule = (newSchedules: DaySchedule[]) => {
     setSchedules(newSchedules);
   };
@@ -163,8 +152,6 @@ export default function RecommendResultById({
   if (isLoading) {
     return <Loading message="일정을 불러오고 있습니다" />;
   }
-
-  const totalCost = calculateTotalCost(schedules);
 
   return (
     <>
@@ -200,19 +187,8 @@ export default function RecommendResultById({
                     )}
                     개 장소
                   </div>
-                  <div className="flex items-center">
-                    <i className="ri-wallet-line mr-2"></i>
-                    예상 비용: {totalCost.toLocaleString()}원
-                  </div>
                 </div>
               </div>
-              <button
-                onClick={onSaveSchedule}
-                disabled={isSaving}
-                className="bg-white text-blue-600 px-6 py-3 rounded-lg font-semibold hover:bg-gray-100 transition-colors cursor-pointer whitespace-nowrap disabled:opacity-50"
-              >
-                {isSaving ? "저장 중..." : "일정 저장"}
-              </button>
             </div>
           </div>
 
@@ -329,7 +305,6 @@ function DayCardWithMap({
                         {item.category}
                       </span>
                       <span>{item.duration}</span>
-                      <span>{item.cost}</span>
                     </div>
                     <p className="text-gray-700 mb-3 text-sm leading-relaxed">
                       {item.description}
