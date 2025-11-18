@@ -259,9 +259,8 @@ export default function Statistics() {
           </div>
         </div>
 
-        {/* 차트 섹션 */}
-        <div className="mt-8 grid grid-cols-1 lg:grid-cols-2 gap-8">
-          {/* 카테고리별 분포 */}
+        {/* 카테고리별 인기도 */}
+        <div className="mt-8">
           <div className="bg-white rounded-xl shadow-sm p-6">
             <h3 className="text-lg font-semibold text-gray-900 mb-6">
               카테고리별 인기도
@@ -305,39 +304,6 @@ export default function Statistics() {
                         className="bg-blue-600 h-2 rounded-full transition-all duration-300"
                         style={{ width: `${percentage}%` }}
                       ></div>
-                    </div>
-                  </div>
-                );
-              })}
-            </div>
-          </div>
-
-          {/* 월별 트렌드 */}
-          <div className="bg-white rounded-xl shadow-sm p-6">
-            <h3 className="text-lg font-semibold text-gray-900 mb-6">
-              월별 추천 트렌드
-            </h3>
-            <div className="space-y-3">
-              {["1월", "2월", "3월", "4월", "5월", "6월"].map((month) => {
-                const value = Math.floor(Math.random() * 100) + 50;
-                return (
-                  <div
-                    key={month}
-                    className="flex items-center justify-between"
-                  >
-                    <span className="text-sm font-medium text-gray-700">
-                      {month}
-                    </span>
-                    <div className="flex items-center space-x-2">
-                      <div className="w-32 bg-gray-200 rounded-full h-2">
-                        <div
-                          className="bg-green-500 h-2 rounded-full"
-                          style={{ width: `${value}%` }}
-                        ></div>
-                      </div>
-                      <span className="text-sm text-gray-600 w-12 text-right">
-                        {value}%
-                      </span>
                     </div>
                   </div>
                 );
