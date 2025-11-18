@@ -47,8 +47,9 @@ export default function Header({ showAuth = true }: HeaderProps) {
               ) : (
                 <Link
                   href="/auth/login"
-                  className="bg-blue-600 text-white px-4 py-2 rounded-md text-sm font-medium hover:bg-blue-700 cursor-pointer whitespace-nowrap"
+                  className="bg-yellow-400 text-black px-4 py-2 rounded-md text-sm font-medium hover:bg-yellow-500 cursor-pointer whitespace-nowrap"
                 >
+                  <i className="ri-kakao-talk-fill text-xl mr-[4px]" />
                   로그인
                 </Link>
               )}
