@@ -6,7 +6,6 @@ import Header from "@/components/Header";
 import Loading from "@/components/Loading";
 import ChatBot from "@/components/ChatBot";
 import Map from "@/features/Map";
-import { calculateTotalCost } from "@/utils/helpers";
 import type { DaySchedule } from "@/types";
 import Script from "next/script";
 
@@ -154,8 +153,6 @@ export default function RecommendResultById({
     return <Loading message="일정을 불러오고 있습니다" />;
   }
 
-  const totalCost = calculateTotalCost(schedules);
-
   return (
     <>
       <Script
@@ -189,10 +186,6 @@ export default function RecommendResultById({
                       0
                     )}
                     개 장소
-                  </div>
-                  <div className="flex items-center">
-                    <i className="ri-wallet-line mr-2"></i>
-                    예상 비용: {totalCost.toLocaleString()}원
                   </div>
                 </div>
               </div>
@@ -312,7 +305,6 @@ function DayCardWithMap({
                         {item.category}
                       </span>
                       <span>{item.duration}</span>
-                      <span>{item.cost}</span>
                     </div>
                     <p className="text-gray-700 mb-3 text-sm leading-relaxed">
                       {item.description}
