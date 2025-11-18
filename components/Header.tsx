@@ -45,20 +45,12 @@ export default function Header({ showAuth = true }: HeaderProps) {
                   </button>
                 </>
               ) : (
-                <>
-                  <Link
-                    href="/auth/login"
-                    className="text-gray-600 hover:text-gray-900 px-3 py-2 rounded-md text-sm font-medium cursor-pointer"
-                  >
-                    로그인
-                  </Link>
-                  <Link
-                    href="/auth/signup"
-                    className="bg-blue-600 text-white px-4 py-2 rounded-md text-sm font-medium hover:bg-blue-700 cursor-pointer whitespace-nowrap"
-                  >
-                    회원가입
-                  </Link>
-                </>
+                <Link
+                  href="/auth/login"
+                  className="bg-blue-600 text-white px-4 py-2 rounded-md text-sm font-medium hover:bg-blue-700 cursor-pointer whitespace-nowrap"
+                >
+                  로그인
+                </Link>
               )}
             </div>
           )}
