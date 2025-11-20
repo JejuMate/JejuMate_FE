@@ -24,13 +24,13 @@ interface AuthContextType {
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
-function isJWT(token: string) : boolean{
+function isJWT(token: string) : boolean{ //TODO:추후에 백엔드랑 통신 시 삭제, JWT 발급 필수
     return token.includes('.') && token.split('.').length === 3;
 }
 
 function isTokenExpired(token: string): boolean {
     try {
-        if(!isJWT(token)) {
+        if(!isJWT(token)) { //TODO:추후에 백엔드랑 통신 시 삭제
             return false;
         }
 
@@ -44,7 +44,7 @@ function isTokenExpired(token: string): boolean {
 
 function isTokenExpiringSoon(token: string, thresholdMs: number = 5 * 60 * 1000): boolean {
     try {
-        if(!isJWT(token)) {
+        if(!isJWT(token)) { //TODO:추후에 백엔드랑 통신 시 삭제
             return false;
         }
 
