@@ -24,9 +24,16 @@ interface AuthContextType {
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
-// 토큰 만료 체크
+function isJWT(token: string) : boolean{
+    return token.includes('.') && token.split('.').length === 3;
+}
+
 function isTokenExpired(token: string): boolean {
     try {
+        if(!isJWT(token)) {
+            return false;
+        }
+
         const payload = JSON.parse(atob(token.split('.')[1]));
         const exp = payload.exp * 1000;
         return Date.now() >= exp;
@@ -37,6 +44,10 @@ function isTokenExpired(token: string): boolean {
 
 function isTokenExpiringSoon(token: string, thresholdMs: number = 5 * 60 * 1000): boolean {
     try {
+        if(!isJWT(token)) {
+            return false;
+        }
+
         const payload = JSON.parse(atob(token.split('.')[1]));
         const exp = payload.exp * 1000;
         return Date.now() >= exp - thresholdMs;
