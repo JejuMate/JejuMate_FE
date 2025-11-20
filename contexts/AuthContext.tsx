@@ -3,7 +3,6 @@
 import React, { createContext, useContext, useState, useEffect, useCallback, type ReactNode } from 'react';
 import { refreshTokens, logoutAPI, type AuthLoginResponse } from '@/lib/api';
 
-// 토큰 저장 키
 const accessTokenKey = 'jejumate_access_token';
 const refreshTokenKey = 'jejumate_refresh_token';
 const userKey = 'jejumate_user';
@@ -25,18 +24,17 @@ interface AuthContextType {
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
-// 토큰 만료 체크 (JWT 디코딩)
+// 토큰 만료 체크
 function isTokenExpired(token: string): boolean {
     try {
         const payload = JSON.parse(atob(token.split('.')[1]));
-        const exp = payload.exp * 1000; // 초를 밀리초로 변환
+        const exp = payload.exp * 1000;
         return Date.now() >= exp;
     } catch {
         return true;
     }
 }
 
-// 토큰이 곧 만료되는지 체크 (5분 이내)
 function isTokenExpiringSoon(token: string, thresholdMs: number = 5 * 60 * 1000): boolean {
     try {
         const payload = JSON.parse(atob(token.split('.')[1]));
@@ -54,7 +52,6 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     const [refreshToken, setRefreshToken] = useState<string | null>(null);
     const [isLoading, setIsLoading] = useState(true);
 
-    // 인증 데이터 초기화
     const clearAuthData = useCallback(() => {
         localStorage.removeItem(accessTokenKey);
         localStorage.removeItem(refreshTokenKey);
@@ -65,7 +62,6 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         setIsLoggedIn(false);
     }, []);
 
-    // 초기 로드 시 저장된 토큰 확인
     useEffect(() => {
         const initAuth = async () => {
             try {
@@ -89,11 +85,10 @@ export function AuthProvider({ children }: { children: ReactNode }) {
                             localStorage.setItem(accessTokenKey, response.accessToken);
                             localStorage.setItem(refreshTokenKey, response.refreshToken);
                         } else {
-                            // Refresh Token도 만료됨 - 로그아웃
-                            clearAuthData();
+                            clearAuthData(); // refresh Token도 만료됨 -> 로그아웃
                         }
                     } else {
-                        // Access Token 유효
+                        // access Token 유효
                         setAccessToken(storedAccessToken);
                         setRefreshToken(storedRefreshToken);
                         setUser(parsedUser);
@@ -117,7 +112,6 @@ export function AuthProvider({ children }: { children: ReactNode }) {
             nickname: response.nickname,
         };
 
-        // 상태 업데이트
         setAccessToken(response.accessToken);
         setRefreshToken(response.refreshToken);
         setUser(userData);
@@ -131,26 +125,21 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
     const logout = useCallback(async () => {
         try {
-            // 서버에 로그아웃 요청 (RefreshToken 무효화)
             if (refreshToken) {
                 await logoutAPI(refreshToken);
             }
         } catch (error) {
             console.error('서버 로그아웃 실패:', error);
-            // 서버 로그아웃 실패해도 클라이언트는 로그아웃 진행
         } finally {
-            // 클라이언트 인증 데이터 삭제
             clearAuthData();
         }
     }, [refreshToken, clearAuthData]);
 
-    // Access Token 가져오기 (필요시 갱신)
     const getAccessToken = useCallback(async (): Promise<string | null> => {
         if (!accessToken || !refreshToken) {
             return null;
         }
 
-        // 토큰이 곧 만료되면 갱신
         if (isTokenExpiringSoon(accessToken)) {
             try {
                 const response = await refreshTokens(refreshToken);
