@@ -1,61 +1,162 @@
 import type { DaySchedule, RecommendFormData, PopularSpot, RecommendationHistory } from '@/types';
 
 const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || '/api';
+const isMockMode = !API_BASE_URL || API_BASE_URL === '/api';
 
-// Auth API
-export async function loginAPI(email: string, password: string) {
-  // TODO: 실제 API 엔드포인트로 교체
-  const response = await fetch(`${API_BASE_URL}/auth/login`, {
-    method: 'POST',
-    headers: {
-      'Content-Type': 'application/json',
-    },
-    body: JSON.stringify({ email, password }),
-  });
+async function fetchApi<T>(
+    endpoint: string,
+    options: RequestInit = {}
+): Promise<T> {
+    const url = `${API_BASE_URL}${endpoint}`;
 
-  if (!response.ok) {
-    throw new Error('Login failed');
-  }
+    const defaultHeaders: HeadersInit = {
+        'Content-Type': 'application/json',
+    };
 
-  return response.json();
+    const response = await fetch(url, {
+        ...options,
+        headers: {
+            ...defaultHeaders,
+            ...options.headers,
+        },
+    });
+
+    if (!response.ok) {
+        const error = await response.json().catch(() => ({ message: 'API 요청 실패' }));
+        throw new Error(error.message || `HTTP ${response.status}`);
+    }
+
+    return response.json();
 }
 
-export async function signupAPI(userData: {
-  email: string;
-  password: string;
-  name: string;
-  travelStyle?: string;
-  companion?: string;
-  budget?: string;
-  categories?: string[];
-}) {
-  // TODO: 실제 API 엔드포인트로 교체
-  const response = await fetch(`${API_BASE_URL}/auth/signup`, {
-    method: 'POST',
-    headers: {
-      'Content-Type': 'application/json',
-    },
-    body: JSON.stringify(userData),
-  });
-
-  if (!response.ok) {
-    throw new Error('Signup failed');
-  }
-
-  return response.json();
+// 인증 필요한 API 요청 fetch 래퍼
+export async function fetchWithAuth<T>(
+    endpoint: string,
+    accessToken: string,
+    options: RequestInit = {}
+): Promise<T> {
+    return fetchApi<T>(endpoint, {
+        ...options,
+        headers: {
+            ...options.headers,
+            Authorization: `Bearer ${accessToken}`,
+        },
+    });
 }
 
-export async function logoutAPI() {
-  // TODO: 실제 API 엔드포인트로 교체
-  const response = await fetch(`${API_BASE_URL}/auth/logout`, {
-    method: 'POST',
-  });
+export interface AuthLoginResponse {
+    accessToken: string;
+    refreshToken: string;
+    userId: number;
+    nickname: string;
+    isNewMember: boolean;
+}
 
-  if (!response.ok) {
-    throw new Error('Logout failed');
-  }
+export interface TokenRefreshResponse {
+    accessToken: string;
+    refreshToken: string;
+}
 
-  return response.json();
+// 카카오 인증 URL 생성
+export function getKakaoAuthUrl(): string {
+    const kakaoClientId = process.env.NEXT_PUBLIC_KAKAO_CLIENT_ID;
+    const redirectUri = process.env.NEXT_PUBLIC_KAKAO_REDIRECT_URI;
+
+    if (!kakaoClientId || !redirectUri) {
+        throw new Error('카카오 설정이 올바르지 않습니다.');
+    }
+
+    const params = new URLSearchParams({
+        client_id: kakaoClientId,
+        redirect_uri: redirectUri,
+        response_type: 'code',
+    });
+
+    return `https://kauth.kakao.com/oauth/authorize?${params.toString()}`;
+}
+
+// 카카오 로그인
+export async function kakaoLogin(authorizationCode: string): Promise<AuthLoginResponse> {
+    // Mock 모드
+    if (isMockMode) {
+        console.log('Mock 카카오 로그인 - 인가코드:', authorizationCode);
+
+        return new Promise((resolve) => {
+            setTimeout(() => {
+                resolve({
+                    accessToken: 'mock_access_token_kakao_1',
+                    refreshToken: 'mock_refresh_token_kakao_1',
+                    userId: 1,
+                    nickname: '테스트1',
+                    isNewMember: false,
+                });
+            }, 1000);
+        });
+    }
+
+    return fetchApi<AuthLoginResponse>(`/auth/kakao/login?code=${encodeURIComponent(authorizationCode)}`);
+}
+
+// 토큰 갱신
+export async function refreshTokens(refreshToken: string): Promise<TokenRefreshResponse> {
+    // Mock 모드
+    if (isMockMode) {
+        console.log('Mock 토큰 갱신');
+
+        return new Promise((resolve) => {
+            setTimeout(() => {
+                resolve({
+                    accessToken: 'mock_new_access_token_' + Date.now(),
+                    refreshToken: 'mock_new_refresh_token_' + Date.now(),
+                });
+            }, 500);
+        });
+    }
+
+    return fetchApi<TokenRefreshResponse>('/auth/refresh', {
+        method: 'POST',
+        body: JSON.stringify({ refreshToken }),
+    });
+}
+
+// 개발용 토큰 발급
+export async function createDevToken(userId: number): Promise<AuthLoginResponse> {
+    // Mock 모드
+    if (isMockMode) {
+        console.log('Mock 개발용 토큰 발급 - userId:', userId);
+
+        return new Promise((resolve) => {
+            setTimeout(() => {
+                resolve({
+                    accessToken: 'mock_dev_access_token_' + Date.now(),
+                    refreshToken: 'mock_dev_refresh_token_' + Date.now(),
+                    userId: userId,
+                    nickname: `테스트유저${userId}`,
+                    isNewMember: false,
+                });
+            }, 500);
+        });
+    }
+
+    return fetchApi<AuthLoginResponse>('/auth/dev-token', {
+        method: 'POST',
+        body: JSON.stringify({ userId }),
+    });
+}
+
+// 로그아웃 (서버에 RefreshToken 무효화 요청)
+export async function logoutAPI(refreshToken: string): Promise<void> {
+    // Mock 모드
+    if (isMockMode) {
+        console.log('Mock 로그아웃');
+        return;
+    }
+
+    // TODO: 백엔드에 로그아웃 API 추가 후 활성화
+    // await fetchApi('/auth/logout', {
+    //     method: 'POST',
+    //     body: JSON.stringify({ refreshToken }),
+    // });
 }
 
 // Recommendation API

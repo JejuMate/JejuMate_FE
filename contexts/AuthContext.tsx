@@ -1,134 +1,198 @@
-'use client';
+"use client";
 
-import { createContext, useContext, useState, useEffect, ReactNode } from 'react';
+import React, { createContext, useContext, useState, useEffect, useCallback, type ReactNode } from 'react';
+import { refreshTokens, logoutAPI, type AuthLoginResponse } from '@/lib/api';
+
+// 토큰 저장 키
+const accessTokenKey = 'jejumate_access_token';
+const refreshTokenKey = 'jejumate_refresh_token';
+const userKey = 'jejumate_user';
 
 interface User {
-  id: string;
-  email: string;
-  name: string;
-  travelStyle?: string;
-  companion?: string;
-  budget?: string;
-  categories?: string[];
+    id: number;
+    nickname: string;
 }
 
 interface AuthContextType {
-  user: User | null;
-  isLoggedIn: boolean;
-  login: (email: string, password: string) => Promise<void>;
-  logout: () => void;
-  signup: (userData: SignupData) => Promise<void>;
-  updateUser: (userData: Partial<User>) => void;
-  isLoading: boolean;
-}
-
-interface SignupData {
-  email: string;
-  password: string;
-  name: string;
-  travelStyle?: string;
-  companion?: string;
-  budget?: string;
-  categories?: string[];
+    isLoggedIn: boolean;
+    user: User | null;
+    accessToken: string | null;
+    isLoading: boolean;
+    login: (response: AuthLoginResponse) => void;
+    logout: () => void;
+    getAccessToken: () => Promise<string | null>;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
+// 토큰 만료 체크 (JWT 디코딩)
+function isTokenExpired(token: string): boolean {
+    try {
+        const payload = JSON.parse(atob(token.split('.')[1]));
+        const exp = payload.exp * 1000; // 초를 밀리초로 변환
+        return Date.now() >= exp;
+    } catch {
+        return true;
+    }
+}
+
+// 토큰이 곧 만료되는지 체크 (5분 이내)
+function isTokenExpiringSoon(token: string, thresholdMs: number = 5 * 60 * 1000): boolean {
+    try {
+        const payload = JSON.parse(atob(token.split('.')[1]));
+        const exp = payload.exp * 1000;
+        return Date.now() >= exp - thresholdMs;
+    } catch {
+        return true;
+    }
+}
+
 export function AuthProvider({ children }: { children: ReactNode }) {
-  const [user, setUser] = useState<User | null>(null);
-  const [isLoading, setIsLoading] = useState(true);
+    const [isLoggedIn, setIsLoggedIn] = useState(false);
+    const [user, setUser] = useState<User | null>(null);
+    const [accessToken, setAccessToken] = useState<string | null>(null);
+    const [refreshToken, setRefreshToken] = useState<string | null>(null);
+    const [isLoading, setIsLoading] = useState(true);
 
-  useEffect(() => {
-    // 초기 로드 시 localStorage에서 사용자 정보 확인
-    const storedUser = localStorage.getItem('user');
-    if (storedUser) {
-      setUser(JSON.parse(storedUser));
-    }
-    setIsLoading(false);
-  }, []);
+    // 인증 데이터 초기화
+    const clearAuthData = useCallback(() => {
+        localStorage.removeItem(accessTokenKey);
+        localStorage.removeItem(refreshTokenKey);
+        localStorage.removeItem(userKey);
+        setAccessToken(null);
+        setRefreshToken(null);
+        setUser(null);
+        setIsLoggedIn(false);
+    }, []);
 
-  const login = async (email: string, password: string) => {
-    setIsLoading(true);
-    try {
-      // TODO: 실제 API 호출로 대체
-      // const response = await loginAPI(email, password);
-      
-      // Mock user data
-      const mockUser: User = {
-        id: '1',
-        email,
-        name: '사용자',
-      };
-      
-      setUser(mockUser);
-      localStorage.setItem('user', JSON.stringify(mockUser));
-    } catch (error) {
-      console.error('Login failed:', error);
-      throw error;
-    } finally {
-      setIsLoading(false);
-    }
-  };
+    // 초기 로드 시 저장된 토큰 확인
+    useEffect(() => {
+        const initAuth = async () => {
+            try {
+                const storedAccessToken = localStorage.getItem(accessTokenKey);
+                const storedRefreshToken = localStorage.getItem(refreshTokenKey);
+                const storedUser = localStorage.getItem(userKey);
 
-  const logout = () => {
-    setUser(null);
-    localStorage.removeItem('user');
-  };
+                if (storedAccessToken && storedRefreshToken && storedUser) {
+                    const parsedUser = JSON.parse(storedUser) as User;
 
-  const signup = async (userData: SignupData) => {
-    setIsLoading(true);
-    try {
-      // TODO: 실제 API 호출로 대체
-      // const response = await signupAPI(userData);
-      
-      // Mock user data
-      const newUser: User = {
-        id: Date.now().toString(),
-        email: userData.email,
-        name: userData.name,
-        travelStyle: userData.travelStyle,
-        companion: userData.companion,
-        budget: userData.budget,
-        categories: userData.categories,
-      };
-      
-      setUser(newUser);
-      localStorage.setItem('user', JSON.stringify(newUser));
-    } catch (error) {
-      console.error('Signup failed:', error);
-      throw error;
-    } finally {
-      setIsLoading(false);
-    }
-  };
+                    // Access Token이 만료되었으면 갱신 시도
+                    if (isTokenExpired(storedAccessToken)) {
+                        if (storedRefreshToken && !isTokenExpired(storedRefreshToken)) {
+                            const response = await refreshTokens(storedRefreshToken);
 
-  const updateUser = (userData: Partial<User>) => {
-    if (user) {
-      const updatedUser = { ...user, ...userData };
-      setUser(updatedUser);
-      localStorage.setItem('user', JSON.stringify(updatedUser));
-    }
-  };
+                            setAccessToken(response.accessToken);
+                            setRefreshToken(response.refreshToken);
+                            setUser(parsedUser);
+                            setIsLoggedIn(true);
 
-  const value = {
-    user,
-    isLoggedIn: !!user,
-    login,
-    logout,
-    signup,
-    updateUser,
-    isLoading,
-  };
+                            localStorage.setItem(accessTokenKey, response.accessToken);
+                            localStorage.setItem(refreshTokenKey, response.refreshToken);
+                        } else {
+                            // Refresh Token도 만료됨 - 로그아웃
+                            clearAuthData();
+                        }
+                    } else {
+                        // Access Token 유효
+                        setAccessToken(storedAccessToken);
+                        setRefreshToken(storedRefreshToken);
+                        setUser(parsedUser);
+                        setIsLoggedIn(true);
+                    }
+                }
+            } catch (error) {
+                console.error('인증 초기화 실패:', error);
+                clearAuthData();
+            } finally {
+                setIsLoading(false);
+            }
+        };
 
-  return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
+        initAuth();
+    }, [clearAuthData]);
+
+    const login = useCallback((response: AuthLoginResponse) => {
+        const userData: User = {
+            id: response.userId,
+            nickname: response.nickname,
+        };
+
+        // 상태 업데이트
+        setAccessToken(response.accessToken);
+        setRefreshToken(response.refreshToken);
+        setUser(userData);
+        setIsLoggedIn(true);
+
+        // localStorage에 저장
+        localStorage.setItem(accessTokenKey, response.accessToken);
+        localStorage.setItem(refreshTokenKey, response.refreshToken);
+        localStorage.setItem(userKey, JSON.stringify(userData));
+    }, []);
+
+    const logout = useCallback(async () => {
+        try {
+            // 서버에 로그아웃 요청 (RefreshToken 무효화)
+            if (refreshToken) {
+                await logoutAPI(refreshToken);
+            }
+        } catch (error) {
+            console.error('서버 로그아웃 실패:', error);
+            // 서버 로그아웃 실패해도 클라이언트는 로그아웃 진행
+        } finally {
+            // 클라이언트 인증 데이터 삭제
+            clearAuthData();
+        }
+    }, [refreshToken, clearAuthData]);
+
+    // Access Token 가져오기 (필요시 갱신)
+    const getAccessToken = useCallback(async (): Promise<string | null> => {
+        if (!accessToken || !refreshToken) {
+            return null;
+        }
+
+        // 토큰이 곧 만료되면 갱신
+        if (isTokenExpiringSoon(accessToken)) {
+            try {
+                const response = await refreshTokens(refreshToken);
+
+                setAccessToken(response.accessToken);
+                setRefreshToken(response.refreshToken);
+
+                localStorage.setItem(accessTokenKey, response.accessToken);
+                localStorage.setItem(refreshTokenKey, response.refreshToken);
+
+                return response.accessToken;
+            } catch (error) {
+                console.error('토큰 갱신 실패:', error);
+                logout();
+                return null;
+            }
+        }
+
+        return accessToken;
+    }, [accessToken, refreshToken, logout]);
+
+    const value: AuthContextType = {
+        isLoggedIn,
+        user,
+        accessToken,
+        isLoading,
+        login,
+        logout,
+        getAccessToken,
+    };
+
+    return (
+        <AuthContext.Provider value={value}>
+            {children}
+        </AuthContext.Provider>
+    );
 }
 
 export function useAuth() {
-  const context = useContext(AuthContext);
-  if (context === undefined) {
-    throw new Error('useAuth must be used within an AuthProvider');
-  }
-  return context;
+    const context = useContext(AuthContext);
+    if (context === undefined) {
+        throw new Error('useAuth must be used within an AuthProvider');
+    }
+    return context;
 }
-
-
