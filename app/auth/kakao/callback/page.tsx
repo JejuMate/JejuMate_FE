@@ -32,16 +32,15 @@ export default function KakaoCallbackPage() {
 
                 login(response);
 
-                // 리다이렉트 경로 확인
                 const redirectPath = sessionStorage.getItem('redirectAfterLogin');
                 sessionStorage.removeItem('redirectAfterLogin');
 
-                // 신규 회원이면 프로필 설정 페이지로, 기존 회원이면 저장된 경로 또는 홈으로
                 if (response.isNewMember) {
                     router.push('/profile/setup');
                 } else {
                     router.push(redirectPath || '/');
                 }
+
             } catch (err) {
                 console.error('카카오 로그인 실패:', err);
                 setError(err instanceof Error ? err.message : '로그인에 실패했습니다.');
@@ -51,7 +50,6 @@ export default function KakaoCallbackPage() {
         handleKakaoCallback();
     }, [searchParams, login, router]);
 
-    // 에러 상태
     if (error) {
         return (
             <div className="min-h-screen flex items-center justify-center bg-gray-50">
@@ -74,7 +72,6 @@ export default function KakaoCallbackPage() {
         );
     }
 
-    // 로딩 상태
     return (
         <div className="min-h-screen flex items-center justify-center bg-gray-50">
             <div className="text-center">

@@ -3,12 +3,14 @@
 import Link from "next/link";
 import {useAuth} from "@/contexts/AuthContext";
 import {getKakaoAuthUrl} from "@/lib/api";
+import {useRouter} from "next/navigation";
 
 interface HeaderProps {
     showAuth?: boolean;
 }
 
 export default function Header({ showAuth = true }: HeaderProps) {
+    const router = useRouter();
     const { isLoggedIn, logout } = useAuth();
 
     const handleKakaoLogin = () => {
@@ -18,6 +20,11 @@ export default function Header({ showAuth = true }: HeaderProps) {
             console.error('카카오 로그인 URL 생성 실패:', error);
             alert('카카오 로그인 설정에 문제가 있습니다.');
         }
+    };
+
+    const handleLogout = async () => {
+        await logout();
+        router.push('/');
     };
 
     return (
@@ -48,7 +55,7 @@ export default function Header({ showAuth = true }: HeaderProps) {
                                         <i className="ri-user-line text-xl"></i>
                                     </Link>
                                     <button
-                                        onClick={logout}
+                                        onClick={handleLogout}
                                         className="text-gray-600 hover:text-gray-900 px-3 py-2 rounded-md text-sm font-medium cursor-pointer"
                                     >
                                         로그아웃
