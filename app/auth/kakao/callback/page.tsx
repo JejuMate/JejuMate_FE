@@ -35,11 +35,8 @@ export default function KakaoCallbackPage() {
                 const redirectPath = sessionStorage.getItem('redirectAfterLogin');
                 sessionStorage.removeItem('redirectAfterLogin');
 
-                if (response.isNewMember) {
-                    router.push('/profile/setup');
-                } else {
-                    router.push(redirectPath || '/');
-                }
+                // 로그인 후 홈페이지 유지
+                router.push('/');
 
             } catch (err) {
                 console.error('카카오 로그인 실패:', err);
